@@ -25,91 +25,81 @@ def getNeighbors(point,shape):
 
 
 # Step 1) Inverting a grayscale image
-def invertGrayscale(img):
-    inverted = np.zeros(img.shape, dtype=np.uint8)
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-            inverted[i,j] = 255 - img[i,j]
-    cv2.imwrite("invertedImage.png", inverted)
+def invertGrayscale(image):
+    slate = np.zeros(image.shape, dtype=np.uint8) + 255
+    img = slate - image
+    return img
 
 # Step 2) Inverting a BGR image
-def invertBGR(img):
-    inverted = np.zeros(img.shape, dtype=np.uint8)
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-            inverted[i,j] = 255 - img[i,j]
-    cv2.imwrite("invertedBGRImage.png", inverted)
+def invertBGR(image):
+    slate = np.zeros(image.shape, dtype=np.uint8)
+    slate[:,:,0] = invertGrayscale(image[:,:,0])
+    slate[:,:,1] = invertGrayscale(image[:,:,1])
+    slate[:,:,2] = invertGrayscale(image[:,:,2])
+    img = slate - image
+    return img
 
 # Step 3) Thresholding a grayscale image
-def thresholdGrayscale(img):
-    thresholded = np.zeros(img.shape, dtype=np.uint8)
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-            if img[i,j] < 128:
-                thresholded[i,j] = 0
+def thresholdGrayscale(image,threshold):
+    height, width = image.shape
+    for x in range(height):
+        for y in range(width):
+            if image[x,y] < threshold:
+                image[x,y] = 0
             else:
-                thresholded[i,j] = 255
-    cv2.imwrite("thresholdedImage.png", thresholded)
+                image[x,y] = 255
+    
+    return image
     
 # Step 4) Thresholding a color image
-def thresholdBGR(img):
-    thresholded = np.zeros(img.shape, dtype=np.uint8)
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-            if img[i,j][0] < 128:
-                thresholded[i,j][0] = 0
-            else:
-                thresholded[i,j][0] = 255
-
-            if img[i,j][1] < 128:
-                thresholded[i,j][1] = 0
-            else:
-                thresholded[i,j][1] = 255
-
-            if img[i,j][2] < 128:
-                thresholded[i,j][2] = 0
-            else:
-                thresholded[i,j][2] = 255
-
-    cv2.imwrite("thresholedBGRImage.png", thresholded)
+def thresholdBGR(image,threshold):
+    image[:,:,0] = thresholdGrayscale(image[:,:,0],threshold)
+    image[:,:,1] = thresholdGrayscale(image[:,:,1],threshold)
+    image[:,:,2] = thresholdGrayscale(image[:,:,2],threshold)
+    return image
 
 # Step 5) Getting even more neighbors than before
 def getMoreNeighbors(point,shape):
     h,w = shape
     x,y = point
-    possibleNeighbors = (x,y-1),(x,y+1),(x-1,y),(x+1,y),(x-1,y-1),(x-1,y+1),(x+1,y-1),(x+1,y+1), (x-2,y),(x+2,y),(x,y-2),(x,y+2),(x-2,y-2),(x-2,y+2),(x+2,y-2),(x+2,y+2), (x-1,y-2),(x+1,y-2),(x-1,y+2),(x+1,y+2),(x-2,y-1),(x+2,y-1),(x-2,y+1),(x+2,y+1)
+    possibleNeighbors = (x,y-2),(x,y-1),(x,y+1),(x,y+2),(x-1,y-2),(x-1,y-1),(x-1,y+1),(x-1,y+2),(x-1,y),(x-2,y-2),(x-2,y-1),(x-2,y+1),(x-2,y+2),(x-2,y),(x+1,y-2),(x+1,y-1),(x+1,y+1),(x+1,y+2),(x+1,y),(x+2,y-2),(x+2,y-1),(x+2,y+1),(x+2,y+2),(x+2,y)
     actualNeighbors = []
     for p in possibleNeighbors:
         if inBounds(p,h,w):
             actualNeighbors.append(p)
 
     return actualNeighbors
+
 # Step 6) Getting the average value of even more neighbors
-def neighborAverage(point, img):
-    neighbors = getMoreNeighbors(point, img.shape)
+def neighborAverage(point,image):
+    height,width = image.shape
+    neighbors = getMoreNeighbors(point,(height,width))
+
     sum = 0
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-            sum += img[i,j]
-    return sum // len(neighbors)
+    for n in neighbors:
+        sum += float(image[n[0],n[1]])
+    average = sum/len(neighbors)
+
+    return average
 
 # Step 7) Blurring a grayscale image
-def blurGrayscale(img):
-    blurred = np.zeros(img.shape, dtype=np.uint8)
-    for i in range(img.shape[0]):
-        # print(f"at row {i}")
-        for j in range(img.shape[1]):
-            avg = neighborAverage((i,j), img)
-            blurred[i,j] = avg
-    cv2.imwrite("blurredImage.png", blurred)
+def blurGrayscale(image):
+    copy = np.copy(image)
+    height, width = image.shape
+    for x in range(height):
+        for y in range(width):
+            copy[x,y] = neighborAverage((x,y),image)
+    return copy
 
-def blurBGR(img):
-    pass
+def blurBGR(image):
+    image[:,:,0] = blurGrayscale(image[:,:,0])
+    image[:,:,1] = blurGrayscale(image[:,:,1])
+    image[:,:,2] = blurGrayscale(image[:,:,2])
+    return image
 
 # Step 8) Blurring a BGR image
-
+"""
 negativeGirl = cv2.imread("negativeGirlWithEarring.png", 1)
-negativeBuilding = cv2.imread("negativeBuilding.png", 0)
 negativeHorse = cv2.imread("negativeHorse.png", 0)
 
 girl = cv2.imread("images/girlWithEarring.png", 1)
@@ -117,7 +107,4 @@ building = cv2.imread("images/building.png", 0)
 
 thresholdedBuilding = cv2.imread("images/thresholdedBuilding.png", 1)
 thresholdedGirl = cv2.imread("images/thresholdedGirl.png", 1)
-
-invertGrayscale(negativeBuilding)
-
-# blurGrayscale(negativeHorse, "blurredHorse")
+"""
