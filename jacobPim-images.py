@@ -32,12 +32,10 @@ def invertGrayscale(image):
 
 # Step 2) Inverting a BGR image
 def invertBGR(image):
-    slate = np.zeros(image.shape, dtype=np.uint8)
-    slate[:,:,0] = invertGrayscale(image[:,:,0])
-    slate[:,:,1] = invertGrayscale(image[:,:,1])
-    slate[:,:,2] = invertGrayscale(image[:,:,2])
-    img = slate - image
-    return img
+    image[:,:,0] = invertGrayscale(image[:,:,0])
+    image[:,:,1] = invertGrayscale(image[:,:,1])
+    image[:,:,2] = invertGrayscale(image[:,:,2])
+    return image
 
 # Step 3) Thresholding a grayscale image
 def thresholdGrayscale(image,threshold):

@@ -1,0 +1,23 @@
+TEST OF  :  invertGrayscale
+TEST PASSED
+
+TEST OF  :  invertBGR
+TEST PASSED
+
+TEST OF  :  thresholdGrayscale
+TEST PASSED
+
+TEST OF  :  thresholdBGR
+TEST PASSED
+
+TEST OF  :  getMoreNeighbors
+TEST PASSED
+
+TEST OF  :  neighborAverage
+TEST PASSED
+
+TEST OF  :  blurGrayscale
+TEST PASSED
+
+TEST OF  :  blurBGR
+TEST PASSED
