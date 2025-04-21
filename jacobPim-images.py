@@ -89,20 +89,9 @@ def blurGrayscale(image):
             copy[x,y] = neighborAverage((x,y),image)
     return copy
 
+# Step 8) Blurring a BGR image
 def blurBGR(image):
     image[:,:,0] = blurGrayscale(image[:,:,0])
     image[:,:,1] = blurGrayscale(image[:,:,1])
     image[:,:,2] = blurGrayscale(image[:,:,2])
     return image
-
-# Step 8) Blurring a BGR image
-"""
-negativeGirl = cv2.imread("negativeGirlWithEarring.png", 1)
-negativeHorse = cv2.imread("negativeHorse.png", 0)
-
-girl = cv2.imread("images/girlWithEarring.png", 1)
-building = cv2.imread("images/building.png", 0)
-
-thresholdedBuilding = cv2.imread("images/thresholdedBuilding.png", 1)
-thresholdedGirl = cv2.imread("images/thresholdedGirl.png", 1)
-"""
